@@ -1,6 +1,8 @@
+import easygui
 import piexif
-#this script and image should be in same file and image name here
-exif_dict = piexif.load("sample.jpg")
+print("Select the image files which have JPEG/JPG or TIFF as their extensions, selecting other types will raise errors\n")
+#for selecting the file
+exif_dict = piexif.load(easygui.fileopenbox())
 thumbnail = exif_dict.pop("thumbnail")
 if thumbnail is not None:
     with open("thumbnail.jpg", "wb+") as f:
@@ -15,13 +17,8 @@ for ifd_name in exif_dict:
             print(key, exif_dict[ifd_name][key][:10])
         except:
             print(key, exif_dict[ifd_name][key])
-"""            
+"""
 gps_info = exif_dict['GPS']
-GPSLatitude = gps_info[2]
-GPSLongitude = gps_info[4]
-Latitude_direction = gps_info[1].decode('utf-8')
-Longitude_direction = gps_info[3].decode('utf-8')
-
 #for converting to decimal from degrees minutes seconds
 def get_decimal_from_dms(dms, ref):
     degrees = dms[0][0] / dms[0][1]
@@ -33,11 +30,19 @@ def get_decimal_from_dms(dms, ref):
         seconds = -seconds
     return round(degrees + minutes + seconds, 5)
 
-def get_coordinates():
-    lat = get_decimal_from_dms(GPSLatitude,Latitude_direction)
-    lon = get_decimal_from_dms(GPSLongitude,Longitude_direction)
-    return (lat,lon)
-print(get_coordinates())
+try:
+    GPSLatitude = gps_info[2]
+    GPSLongitude = gps_info[4]
+    Latitude_direction = gps_info[1].decode('utf-8')
+    Longitude_direction = gps_info[3].decode('utf-8')
+    def get_coordinates():
+        lat = get_decimal_from_dms(GPSLatitude,Latitude_direction)
+        lon = get_decimal_from_dms(GPSLongitude,Longitude_direction)
+        return (lat,lon)
+    print("This image was taken at these co-ordinates: " + str(get_coordinates()))
+except KeyError:
+    print("This image does not have any location data present. Select another image.")
 
+#basic funcitonality done, need more code for handling other image types exceptions
 
 
